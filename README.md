@@ -118,7 +118,7 @@ flowchart TB
         Multi["/api/teachoff · /api/quiz"]
     end
 
-    subgraph brains["🧠 TitanomGPT — OpenAI-compatible"]
+    subgraph brains["🧠 DeutschlandGPT — OpenAI-compatible"]
         Fast["gemini-3.1-flash-lite<br/>fast grading, ~1.7s"]
         Deep["claude-4.5-sonnet<br/>jury & closed-world recall"]
     end
@@ -157,7 +157,7 @@ sequenceDiagram
     participant App as React App
     participant Learner as ElevenLabs Agent
     participant Server as Grading Server
-    participant AI as TitanomGPT
+    participant AI as DeutschlandGPT
 
     You->>App: Pick a topic + a learner
     App->>Server: POST /api/lesson
@@ -238,7 +238,7 @@ sequenceDiagram
 | Frontend | React 19 + Vite | `@elevenlabs/react` for the voice session, no framework overhead |
 | Voice | ElevenLabs Conversational AI | One agent, six personas via per-session prompt/voice overrides |
 | Grading server | Express 5 | Two models: a fast one for the live loop, a stronger one for judgement calls |
-| Model access | TitanomGPT (OpenAI-compatible) | `gemini-3.1-flash-lite` for speed, `claude-4.5-sonnet` where a wrong answer needs to be subtle to be dangerous |
+| Model access | DeutschlandGPT (OpenAI-compatible) | `gemini-3.1-flash-lite` for speed, `claude-4.5-sonnet` where a wrong answer needs to be subtle to be dangerous |
 | Persistence | Upstash Redis | Teach-Off boards and quiz state survive serverless cold starts |
 | Hosting | Vercel (×2 projects) | Zero-config detection for Vite and Express from one repo |
 

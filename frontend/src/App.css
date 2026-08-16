@@ -1,0 +1,3996 @@
+@import "./styles/tokens.css";
+@import "./styles/theme.css";
+@import "./styles/grain.css";
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+button {
+  font: inherit;
+}
+
+.app {
+  min-height: 100vh;
+  /* Scales with the viewport instead of sitting at a fixed 48px. On a phone
+     that reclaims nearly 60px of width for the content; on a large screen it
+     opens up rather than pinning everything to a narrow column. */
+  padding: clamp(20px, 3.5vw, 56px);
+}
+
+.hero {
+  /* Was a flat 1050px, which left wide empty gutters on a laptop while the
+     character grid below it wrapped for want of a few dozen pixels. The cap
+     still exists — prose past ~75 characters a line is harder to read, and
+     the hero is prose — but it now grows with the window instead of ignoring
+     it. */
+  max-width: min(1320px, 94vw);
+  margin: 0 auto;
+  padding: clamp(28px, 4vw, 60px) 0;
+}
+
+/* The hero's own prose stays narrow even as the page widens: the measure is
+   about reading, not about the container. */
+.hero > .subtitle {
+  max-width: 62ch;
+}
+
+.eyebrow {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  margin-bottom: 24px;
+  opacity: 0.55;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(48px, 7vw, 88px);
+  line-height: 0.95;
+  letter-spacing: -0.055em;
+}
+
+h1 span {
+  font-style: italic;
+}
+
+.subtitle {
+  max-width: 650px;
+  margin: 32px 0 56px;
+  font-size: 20px;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+
+h2 {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+/* -----------------------------
+   Topic selection
+----------------------------- */
+
+.topic-form {
+  display: flex;
+  gap: 12px;
+  max-width: 780px;
+  /* The submit button pushed 24px past the right edge of a 390px phone and
+     gave the whole page a horizontal scrollbar. The row has to be allowed to
+     wrap, and the input needs a min-width small enough to let it: a flex item
+     defaults to min-width:auto, which refuses to shrink below its content and
+     is what forced the row wider than the screen. */
+  flex-wrap: wrap;
+}
+
+.topic-form .topic-input {
+  min-width: 0;
+}
+
+@media (max-width: 560px) {
+  .topic-form .topic-submit {
+    width: 100%;
+  }
+}
+
+.topic-input {
+  flex: 1;
+  padding: 18px 22px;
+  font-size: 17px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-raised);
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.topic-input:focus {
+  border-color: var(--ink);
+}
+
+.topic-input::placeholder {
+  color: var(--ink-faint);
+}
+
+.topic-input:disabled {
+  opacity: 0.6;
+}
+
+.topic-submit {
+  padding: 18px 30px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--on-ink);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s ease;
+}
+
+.topic-submit:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.topic-status {
+  margin-top: 16px;
+  color: var(--ink-3);
+  font-style: italic;
+}
+
+.topic-error {
+  max-width: 780px;
+}
+
+.topic-suggestions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 30px;
+}
+
+.topic-suggestions-label {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.45;
+  margin-right: 4px;
+}
+
+.topic-chip {
+  padding: 9px 16px;
+  font-size: 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-raised);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.topic-chip:hover:not(:disabled) {
+  border-color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.topic-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.difficulty-tag {
+  margin-left: 10px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ink) 9%, transparent);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.topic-card {
+  text-align: left;
+  border: 1px solid var(--line);
+  background: var(--paper-raised);
+  padding: 28px;
+  border-radius: 18px;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.topic-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px var(--shadow);
+}
+
+.topic-name {
+  font-size: 24px;
+  font-weight: 750;
+  margin-bottom: 10px;
+}
+
+.topic-description {
+  color: var(--ink-3);
+  line-height: 1.5;
+}
+
+/* -----------------------------
+   Lesson
+----------------------------- */
+
+.session {
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+.back-button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--ink-3);
+  padding: 0;
+  margin-bottom: 40px;
+}
+
+.session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  margin-bottom: 22px;
+}
+
+.session-header h1 {
+  font-size: clamp(30px, 3.5vw, 44px);
+  margin: 4px 0 6px;
+}
+
+.session-header p {
+  color: var(--ink-3);
+  font-size: 15px;
+  margin: 0;
+}
+
+.session-layout {
+  display: grid;
+  grid-template-columns: 210px 1fr 330px;
+  gap: 24px;
+}
+
+.character-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: sticky;
+  top: 24px;
+  align-self: start;
+  padding-top: 12px;
+}
+
+.rail-name {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.conversation,
+.progress {
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+}
+
+.conversation {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: sticky;
+  top: 16px;
+  height: calc(100vh - 140px);
+  min-height: 420px;
+}
+
+.conversation > div:first-child {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* -----------------------------
+   Grandma
+----------------------------- */
+
+.grandma-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-left: auto;
+}
+
+.grandma-character {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  transition: transform 0.3s ease;
+}
+
+.grandma-character img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+
+  /* The peep avatars carry their character colour as a baked background,
+     so they crop to the same circle the glyph avatars use. The multiply
+     blend that served the old white-background JPEG would tint that
+     colour — it's gone with the JPEG. */
+  border-radius: 50%;
+}
+
+.grandma-character.speaking {
+  animation: grandma-speaking 0.8s ease-in-out infinite;
+}
+.grandma-character::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  pointer-events: none;
+}
+@keyframes grandma-speaking {
+  0% {
+    transform: translateY(0) rotate(-1deg);
+  }
+
+  25% {
+    transform: translateY(-2px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-4px) rotate(1deg);
+  }
+
+  75% {
+    transform: translateY(-2px) rotate(0deg);
+  }
+
+  100% {
+    transform: translateY(0) rotate(-1deg);
+  }
+}
+
+/* -----------------------------
+   Grandma status indicators
+----------------------------- */
+
+.speaking-indicator,
+.listening-indicator {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-muted);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.speaking-indicator.visible,
+.listening-indicator.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.speaking-dot,
+.listening-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.speaking-dot {
+  background: var(--ink);
+  animation: speaking-dot 0.8s ease-in-out infinite alternate;
+}
+
+@keyframes speaking-dot {
+  from {
+    transform: scale(0.7);
+  }
+
+  to {
+    transform: scale(1.2);
+  }
+}
+
+.listening-dot {
+  background: var(--ink-muted);
+  animation: listening-dot 1.2s ease-in-out infinite alternate;
+}
+
+@keyframes listening-dot {
+  from {
+    opacity: 0.45;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* -----------------------------
+   Conversation / transcript
+----------------------------- */
+
+.transcript {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 10px 8px 0;
+  scroll-behavior: smooth;
+}
+
+.transcript-message {
+  max-width: 82%;
+  padding: 16px 18px;
+  border-radius: 18px;
+  line-height: 1.5;
+}
+
+.transcript-message p {
+  margin: 6px 0 0;
+}
+
+.transcript-message .speaker {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+}
+
+.grandma-message {
+  align-self: flex-start;
+  max-width: 650px;
+  background: var(--paper-alt);
+  border-top-left-radius: 6px;
+}
+
+/* 16px, matching the student's own messages. At 20px her lines were a
+   third larger than yours in a column that is now twice as wide — sized
+   for a narrow rail where one sentence was the whole view, not for a
+   conversation you read several turns of at once. */
+.grandma-message p {
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.user-message {
+  align-self: flex-end;
+  background: var(--ink);
+  color: white;
+  border-bottom-right-radius: 6px;
+}
+
+.user-message .speaker {
+  opacity: 0.65;
+}
+
+.speaker,
+.progress-title {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  opacity: 0.55;
+}
+
+.transcript::-webkit-scrollbar {
+  width: 6px;
+}
+
+.transcript::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  background: var(--line);
+}
+
+/* -----------------------------
+   Microphone
+----------------------------- */
+
+.mic-area {
+  text-align: center;
+}
+
+.mic-button {
+  width: 82px;
+  height: 82px;
+  border: none;
+  border-radius: 50%;
+  background: var(--ink);
+  color: white;
+  font-size: 32px;
+  cursor: pointer;
+}
+
+.mic-button.active {
+  animation: mic-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes mic-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+.mic-button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.mic-area p {
+  color: var(--ink-3);
+}
+
+.error-message {
+  margin-top: 20px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  background: var(--bad-tint);
+  color: var(--bad);
+}
+
+/* -----------------------------
+   Progress
+----------------------------- */
+
+.progress {
+  padding: 28px;
+  height: fit-content;
+}
+
+.progress-title {
+  margin-bottom: 24px;
+}
+
+.progress-count {
+  font-size: 32px;
+  font-weight: 750;
+  margin-bottom: 18px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  margin-bottom: 24px;
+  border-radius: 999px;
+  background: var(--paper-alt);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--ink);
+  transition: width 0.5s ease;
+}
+
+.progress-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--paper-alt);
+  line-height: 1.4;
+}
+
+.progress-circle {
+  font-size: 20px;
+}
+
+.progress-item.completed {
+  color: var(--ink);
+  font-weight: 650;
+}
+
+.progress-item.completed .progress-circle {
+  font-weight: 900;
+}
+
+/* -----------------------------
+   Completion
+----------------------------- */
+
+.completion-area {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--paper-alt);
+  text-align: center;
+}
+
+.completion-badge {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--ink);
+  color: white;
+  font-size: 26px;
+  font-weight: 800;
+  animation: completion-pop 0.4s ease-out;
+}
+
+.complete-message {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 16px;
+}
+
+.complete-message strong {
+  font-size: 18px;
+}
+
+.complete-message span {
+  color: var(--ink-3);
+  font-size: 14px;
+}
+
+.finish-button,
+.new-lesson-button {
+  border: none;
+  background: var(--ink);
+  color: white;
+  border-radius: 14px;
+  padding: 15px 18px;
+  cursor: pointer;
+  font-weight: 750;
+  transition: transform 0.15s ease;
+}
+
+.finish-button {
+  width: 100%;
+}
+
+.finish-button:hover,
+.new-lesson-button:hover {
+  transform: translateY(-2px);
+}
+
+@keyframes completion-pop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  70% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* -----------------------------
+   Recap
+----------------------------- */
+
+.recap-page {
+  /* The one gap the whole report is spaced by. Overridden per breakpoint
+     further down; nothing else should hardcode a vertical gap here. */
+  --recap-gap: 32px;
+
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 60px 0;
+}
+
+.recap-page h1 {
+  font-size: clamp(52px, 7vw, 82px);
+}
+
+.recap-subtitle {
+  font-size: 20px;
+  color: var(--ink-3);
+  max-width: 650px;
+  line-height: 1.5;
+}
+
+/* -----------------------------
+   Report rhythm
+
+   One gap value for the whole report, owned by the container. Every section
+   used to carry its own margin, which had drifted to six different values
+   (0, 18, 20, 24, 30 and 48px) and left seven pairs of cards touching with
+   no gap at all — and none of it changed between a laptop and a phone.
+
+   Spacing is now a property of the stack, so a section added later inherits
+   the rhythm instead of having to remember it. Sections must not set their
+   own vertical margin; if one needs to sit apart, give it a rule here.
+----------------------------- */
+
+.recap-page > * {
+  margin-bottom: 0;
+}
+
+.recap-page > * + * {
+  margin-top: var(--recap-gap);
+}
+
+/* The label, the headline and its one-line summary are a single unit of
+   type, so they sit tighter than two report sections do. */
+.recap-page > .eyebrow + h1 {
+  margin-top: 10px;
+}
+
+.recap-page > h1 + .recap-subtitle {
+  margin-top: 14px;
+}
+
+/* The report proper then starts after a clear break from that header. */
+.recap-page > .recap-subtitle + * {
+  margin-top: calc(var(--recap-gap) * 1.6);
+}
+
+/* The closing actions are not a report section — they get room to read as a
+   footer rather than as one more card. */
+.recap-page > .challenge-entry,
+.recap-page > .new-lesson-button {
+  margin-top: calc(var(--recap-gap) * 1.25);
+}
+
+.grandma-verdict {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--paper-raised);
+}
+
+.grandma-verdict-avatar {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--paper-alt);
+  font-size: 26px;
+}
+
+.grandma-verdict-label {
+  margin-bottom: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+}
+
+.grandma-verdict p {
+  margin: 0;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.recap-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.recap-card {
+  background: var(--paper-raised);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  padding: 28px;
+}
+
+/* Icon and heading sit on one line. The emoji keeps its own line-height so a
+   tall glyph never drags the heading's baseline around. */
+.recap-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.recap-icon {
+  font-size: 28px;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+.recap-card h2 {
+  margin-top: 0;
+  margin-bottom: 18px;
+}
+
+.recap-head h2 {
+  margin: 0;
+}
+
+.recap-card ul {
+  margin: 0;
+  padding-left: 22px;
+}
+
+.recap-card li {
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.recap-card p {
+  line-height: 1.6;
+  color: var(--ink-3);
+}
+
+
+/* -----------------------------
+   Mic controls
+----------------------------- */
+
+.mic-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.mic-button.muted {
+  background: var(--ink-wash-4);
+  animation: none;
+}
+
+.end-call-button {
+  padding: 12px 20px;
+  border: 1px solid color-mix(in srgb, var(--ink) 20%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.end-call-button:hover {
+  background: var(--ink-wash-1);
+  border-color: var(--ink-wash-4);
+}
+
+/* -----------------------------
+   AI grading
+----------------------------- */
+
+.grading-status {
+  margin-top: 8px;
+  font-size: 14px;
+  opacity: 0.65;
+  font-style: italic;
+}
+
+
+.ai-grade-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ai-grade-list li {
+  display: flex;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--ink-wash-2);
+}
+
+.ai-grade-list li:last-child {
+  border-bottom: none;
+}
+
+.ai-grade-mark {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.ai-grade-list li.understood .ai-grade-mark {
+  background: var(--good);
+  color: var(--on-ink);
+}
+
+.ai-grade-list li.unclear .ai-grade-mark {
+  background: color-mix(in srgb, var(--ink) 10%, transparent);
+  color: color-mix(in srgb, var(--ink) 50%, transparent);
+}
+
+.ai-grade-list strong {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.ai-grade-list p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.75;
+  line-height: 1.5;
+}
+
+/* -----------------------------
+   Responsive
+----------------------------- */
+
+@media (max-width: 900px) {
+  .app {
+    padding: 20px;
+  }
+
+  .session {
+    padding: 20px;
+  }
+
+  .session-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .character-rail {
+    position: static;
+    flex-direction: row;
+    justify-content: center;
+    padding-top: 0;
+  }
+
+  .character-rail .grandma-character {
+    width: 96px;
+    height: 96px;
+  }
+
+  .progress {
+    width: 100%;
+  }
+
+  .session-header {
+    gap: 20px;
+    align-items: flex-start;
+  }
+
+  .conversation {
+    position: static;
+    height: auto;
+    min-height: 380px;
+  }
+
+  .transcript {
+    max-height: 360px;
+    flex: none;
+  }
+
+  .recap-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Once the report is one column the sections are already fully separated
+     by width, so they need less air between them than they do side by side. */
+  .recap-page {
+    --recap-gap: 26px;
+  }
+}
+
+@media (max-width: 600px) {
+  .app {
+    padding: 16px;
+  }
+
+  .hero,
+  .session,
+  .recap-page {
+    padding: 24px 16px;
+  }
+
+  .session-header {
+    align-items: flex-start;
+  }
+
+  .session-header h1 {
+    font-size: 42px;
+  }
+
+  .grandma-character {
+    width: 120px;
+    height: 120px;
+  }
+
+  .transcript-message {
+    max-width: 92%;
+  }
+
+  .topic-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .recap-page h1 {
+    font-size: 48px;
+  }
+
+  .recap-page {
+    --recap-gap: 22px;
+  }
+
+  /* 28px of padding each side eats a third of a 390px screen. Pulling it in
+     gives the text room without letting the cards merge into each other —
+     the gap between sections stays larger than the space inside them. */
+  .recap-card {
+    padding: 20px;
+  }
+
+  .grandma-verdict {
+    padding: 18px;
+  }
+}
+/* -----------------------------
+   Explain-back (#9)
+----------------------------- */
+
+.recall-button {
+  margin-top: 14px;
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-raised);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.recall-button:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+
+.recall-button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.recap-pending {
+  color: var(--ink-3);
+  font-style: italic;
+}
+
+.gap-scoreboard {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.gap-stat {
+  flex: 1;
+  min-width: 130px;
+  padding: 14px 16px;
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+  background: var(--paper-raised);
+}
+
+.gap-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 6px;
+}
+
+.gap-value {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.grandma-recall {
+  padding: 18px 20px;
+  border-radius: 12px;
+  background: var(--ink-wash-1);
+  margin-bottom: 20px;
+}
+
+.grandma-recall p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+.recall-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.5;
+  margin-bottom: 8px;
+}
+
+.recall-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.recall-list li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.recall-mark {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 13px;
+  background: var(--ink-wash-2);
+}
+
+.recall-correct .recall-mark {
+  background: var(--good);
+  color: var(--on-ink);
+}
+
+.recall-garbled .recall-mark {
+  background: var(--warn);
+  color: var(--on-ink);
+}
+
+.recall-said {
+  margin: 4px 0 0;
+  font-style: italic;
+  opacity: 0.75;
+}
+
+.recall-gap {
+  margin: 4px 0 0;
+  font-size: 14px;
+  opacity: 0.65;
+}
+
+.term-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.term-chip {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: var(--bad-tint);
+  color: var(--bad);
+  font-size: 14px;
+}
+
+.recall-footnote {
+  margin: 10px 0 0;
+  font-size: 13px;
+  opacity: 0.55;
+}
+
+/* -----------------------------
+   Weakness training (#22)
+----------------------------- */
+
+
+.challenge-button {
+  padding: 13px 24px;
+  font-size: 15px;
+  font-weight: 700;
+  border: none;
+  border-radius: 999px;
+  background: var(--bad);
+  color: var(--on-ink);
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.challenge-button:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.challenge-button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.challenge-banner {
+  margin: 0 0 18px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--bad) 35%, transparent);
+  background: color-mix(in srgb, var(--bad) 6%, transparent);
+}
+
+.challenge-banner-title {
+  font-weight: 800;
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.challenge-diagnosis {
+  margin: 0 0 6px;
+  opacity: 0.8;
+}
+
+.challenge-instruction {
+  margin: 0;
+  font-weight: 600;
+}
+
+.banned-terms-panel {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.banned-terms-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  opacity: 0.5;
+  margin-bottom: 10px;
+}
+
+.banned-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.banned-chip {
+  padding: 6px 13px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--bad) 35%, transparent);
+  color: var(--bad);
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.banned-chip.hit {
+  background: var(--bad);
+  border-color: var(--bad);
+  color: var(--on-ink);
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+.banned-hint {
+  margin: 10px 0 0;
+  font-size: 13px;
+  opacity: 0.55;
+}
+
+/* -----------------------------
+   Topic analysis (#20)
+----------------------------- */
+
+.topic-analysis {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.analysis-meter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.analysis-label {
+  font-size: 13px;
+  opacity: 0.65;
+  min-width: 110px;
+}
+
+.meter-dots {
+  display: flex;
+  gap: 5px;
+}
+
+.meter-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ink) 15%, transparent);
+}
+
+.meter-dot.filled {
+  background: var(--bad);
+}
+
+.prereq-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.prereq-chip {
+  padding: 4px 11px;
+  border-radius: 999px;
+  background: var(--ink-wash-1);
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+/* -----------------------------
+   Challenge deck (#39) & misconceptions (var(--info))
+----------------------------- */
+
+.challenge-deck,
+.misconceptions-panel {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.challenge-deck-title,
+.misconceptions-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  opacity: 0.5;
+  margin-bottom: 10px;
+}
+
+.challenge-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.challenge-chip {
+  padding: 10px 14px;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper-raised);
+  font-size: 14px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.challenge-chip:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+
+.challenge-chip:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.challenge-chip.used {
+  text-decoration: line-through;
+}
+
+.challenge-sent-notice {
+  margin: 10px 0 0;
+  font-size: 13px;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.misconceptions-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 14px;
+  opacity: 0.8;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* -----------------------------
+   Feynman Score + XP (#40, #25)
+----------------------------- */
+
+.completion-band {
+  padding: 20px 24px;
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  background: var(--paper-raised);
+}
+
+.score-pending {
+  margin: 0;
+  color: var(--ink-3);
+  font-style: italic;
+}
+
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 16px;
+}
+
+.feynman-score {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  color: var(--on-ink);
+}
+
+.score-good {
+  background: var(--good);
+}
+
+.score-mid {
+  background: var(--warn);
+}
+
+.score-low {
+  background: var(--bad);
+}
+
+.score-number {
+  font-size: 34px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.score-denom {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.score-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  opacity: 0.5;
+  margin-bottom: 4px;
+}
+
+.score-verdict {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.score-unavailable {
+  margin: 0 0 14px;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.xp-list {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.xp-list li {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.xp-amount {
+  flex-shrink: 0;
+  min-width: 46px;
+  font-weight: 800;
+  color: var(--good);
+  font-variant-numeric: tabular-nums;
+}
+
+.xp-quote {
+  opacity: 0.6;
+  font-size: 14px;
+}
+
+.xp-total {
+  padding-top: 12px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 15px;
+}
+
+.xp-running {
+  opacity: 0.6;
+}
+
+/* -----------------------------
+   Characters (#2 / #3 / #36)
+----------------------------- */
+
+.character-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  max-width: 980px;
+  margin-bottom: 34px;
+}
+
+.character-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper-raised);
+  cursor: pointer;
+  text-align: center;
+  transition:
+    border-color 0.15s ease,
+    transform 0.15s ease;
+}
+
+.character-card:hover:not(:disabled) {
+  border-color: var(--ink);
+  transform: translateY(-2px);
+}
+
+.character-card.selected {
+  border-color: var(--ink);
+  border-width: 2px;
+  padding: 15px 11px 13px; /* keep size stable as the border thickens */
+}
+
+.character-card:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.character-card-face {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.character-card-glyph {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 30px;
+}
+
+.character-card-name {
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.character-card-level {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.character-card-hook {
+  font-size: 12px;
+  opacity: 0.65;
+  line-height: 1.35;
+}
+
+/* The header portrait: a glyph in a coloured circle for characters without
+   art. The legacy Grandma PNG relies on mix-blend-mode: multiply, which
+   would muddy any coloured element — so glyph avatars opt back out of it. */
+.grandma-character.glyph-character {
+  mix-blend-mode: normal;
+}
+
+.glyph-face {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 44px;
+  mix-blend-mode: normal;
+}
+
+/* -----------------------------
+   Voice-only mode (#18)
+----------------------------- */
+
+.voice-only-toggle {
+  margin-bottom: 14px;
+  padding: 9px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-raised);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.voice-only-toggle:hover {
+  border-color: var(--ink);
+}
+
+.session-layout.voice-only {
+  grid-template-columns: 1fr;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.session-layout.voice-only .character-rail {
+  position: static;
+  padding-top: 0;
+}
+
+.voice-only-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.voice-only-line {
+  margin: 0;
+  font-size: 17px;
+  opacity: 0.7;
+}
+
+/* -----------------------------
+   Misconception ambush (#11)
+----------------------------- */
+
+.system-message {
+  text-align: center;
+  font-size: 13px;
+  font-style: italic;
+  opacity: 0.55;
+  padding: 6px 0;
+}
+
+.myth-claim {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.myth-verdict {
+  font-weight: 600;
+  margin: 0;
+}
+
+.myth-verdict.caught {
+  color: var(--good);
+}
+
+.myth-verdict.missed {
+  color: var(--bad);
+}
+
+.myth-verdict em {
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+/* -----------------------------
+   Rich notes (#8)
+----------------------------- */
+
+
+.strongest-quote {
+  margin: 0 0 10px;
+  padding-left: 16px;
+  border-left: 3px solid var(--good);
+  font-size: 19px;
+  line-height: 1.5;
+  font-style: italic;
+}
+
+.strongest-why {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.65;
+}
+
+.practice-this {
+  margin: 0 0 14px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bad) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--bad) 25%, transparent);
+  font-weight: 600;
+}
+
+.stumble-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stumble-list li {
+  font-style: italic;
+  opacity: 0.85;
+}
+
+.stumble-term {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--bad-tint);
+  color: var(--bad);
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 600;
+}
+
+/* Collapsed by default — it's reference material, not a permanent panel. */
+details.misconceptions-panel > summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+details.misconceptions-panel > summary::before {
+  content: "▸ ";
+}
+
+details[open].misconceptions-panel > summary::before {
+  content: "▾ ";
+}
+
+details.misconceptions-panel > summary::-webkit-details-marker {
+  display: none;
+}
+
+details.misconceptions-panel .misconceptions-list {
+  margin-top: 10px;
+}
+
+/* -----------------------------
+   Teach-off (#34)
+----------------------------- */
+
+
+.teachoff-blurb {
+  margin: 0 0 14px;
+  opacity: 0.75;
+}
+
+.teachoff-form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.teachoff-input,
+.join-input {
+  min-width: 200px;
+  padding: 11px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-raised);
+  font-size: 14px;
+  outline: none;
+}
+
+.teachoff-input:focus,
+.join-input:focus {
+  border-color: var(--ink);
+}
+
+.teachoff-button,
+.join-button {
+  padding: 11px 20px;
+  border: none;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--on-ink);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.teachoff-button:disabled,
+.join-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.teachoff-code-line {
+  margin: 0 0 16px;
+}
+
+.teachoff-code {
+  font-size: 22px;
+  letter-spacing: 0.06em;
+  padding: 3px 12px;
+  border-radius: 8px;
+  background: var(--ink-wash-2);
+}
+
+.teachoff-first {
+  margin: 0;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.teachoff-board {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.teachoff-board li {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ink) 3%, transparent);
+}
+
+.teachoff-board li.current-player {
+  background: var(--good-tint);
+  border: 1px solid var(--good-edge);
+}
+
+.board-rank {
+  min-width: 30px;
+}
+
+.board-player {
+  font-weight: 700;
+  flex: 1;
+}
+
+.board-score {
+  font-size: 20px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.board-detail {
+  font-size: 13px;
+  opacity: 0.6;
+}
+
+.teachoff-join {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.join-error {
+  color: var(--bad);
+  font-size: 14px;
+}
+
+/* -----------------------------
+   Achievements (#27)
+----------------------------- */
+
+.achievement-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.achievement-chip {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  border: 1px solid var(--line);
+  background: var(--paper-raised);
+  cursor: default;
+}
+
+.achievement-chip.locked {
+  opacity: 0.38;
+  filter: grayscale(1);
+}
+
+.achievement-chip.owned {
+  border-color: var(--good);
+}
+
+.achievement-chip.fresh {
+  background: var(--good-tint);
+  animation: achievement-pop 0.5s ease;
+}
+
+.achievement-new {
+  margin-left: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  font-style: normal;
+  letter-spacing: 0.08em;
+  color: var(--good);
+}
+
+@keyframes achievement-pop {
+  0% { transform: scale(0.8); }
+  60% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* -----------------------------
+   Mirror mode (#10)
+----------------------------- */
+
+
+.mirror-blurb,
+.mirror-intro {
+  margin: 0 0 14px;
+  opacity: 0.8;
+}
+
+.mirror-intro {
+  font-style: italic;
+}
+
+.mirror-instructions {
+  margin: 0 0 14px;
+  font-weight: 600;
+}
+
+.mirror-button {
+  padding: 12px 22px;
+  border: none;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--on-ink);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mirror-button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.mirror-claims {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  counter-reset: claim;
+}
+
+.mirror-claims li {
+  counter-increment: claim;
+}
+
+.mirror-claim {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper-raised);
+  font-size: 15px;
+  line-height: 1.45;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.mirror-claim::before {
+  content: counter(claim) ".";
+  opacity: 0.4;
+  font-weight: 700;
+}
+
+.mirror-claim-text {
+  flex: 1;
+}
+
+.mirror-claim:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+
+.mirror-claim.flagged {
+  border-color: var(--bad);
+  background: color-mix(in srgb, var(--bad) 5%, transparent);
+}
+
+.mirror-flag-mark {
+  color: var(--bad);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.mirror-claim:disabled {
+  cursor: default;
+}
+
+.mirror-claim.caught {
+  border-color: var(--good);
+  background: var(--good-tint);
+}
+
+.mirror-claim.missed {
+  border-color: var(--bad);
+  background: color-mix(in srgb, var(--bad) 8%, transparent);
+}
+
+.mirror-claim.false-flag {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 7%, transparent);
+}
+
+.mirror-verdict {
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.mirror-verdict.caught { color: var(--good); }
+.mirror-verdict.missed { color: var(--bad); }
+.mirror-verdict.false-flag { color: var(--warn); }
+
+.mirror-why {
+  margin: 6px 0 0 22px;
+  font-size: 13px;
+  opacity: 0.65;
+}
+
+.mirror-score {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* -----------------------------
+   Your character (#46, student half)
+----------------------------- */
+
+.you-widget {
+  margin-bottom: 26px;
+}
+
+.you-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px 8px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-raised);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.you-chip:hover {
+  border-color: var(--ink);
+}
+
+.you-chip-empty {
+  padding: 10px 18px;
+  font-weight: 600;
+}
+
+.you-face {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.you-edit-hint {
+  opacity: 0.4;
+  font-weight: 400;
+}
+
+.you-editor {
+  margin-top: 14px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper-raised);
+  max-width: 560px;
+}
+
+.you-name-input {
+  width: 100%;
+  padding: 11px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+  margin-bottom: 14px;
+}
+
+.you-name-input:focus {
+  border-color: var(--ink);
+}
+
+.you-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.you-preset {
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  line-height: 0;
+  transition: transform 0.12s ease;
+}
+
+.you-preset:hover {
+  transform: scale(1.1);
+}
+
+.you-preset img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.you-builder {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.you-preview {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.you-dials {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.you-dial {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.you-dial-title {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.you-dial-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.you-dial-value {
+  min-width: 118px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.you-step {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--paper-raised);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.you-step:hover {
+  border-color: var(--ink);
+}
+
+.you-swatches {
+  display: flex;
+  gap: 7px;
+}
+
+.you-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+}
+
+.you-swatch.selected {
+  border-color: var(--ink);
+}
+
+@media (max-width: 600px) {
+  .you-builder {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.you-save {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--on-ink);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.you-save:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+
+
+/* The teacher's presence in the scene (#46) */
+
+.speaker-face {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  object-fit: cover;
+  vertical-align: -4px;
+  margin-right: 6px;
+}
+
+
+/* -----------------------------
+   The journey (progress as a path)
+----------------------------- */
+
+.journey {
+  position: relative;
+  height: 64px;
+  margin: 6px 0 18px;
+}
+
+.journey-line {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 42px;
+  border-top: 2px dashed var(--line);
+}
+
+.journey-stone {
+  position: absolute;
+  top: 32px;
+  width: 22px;
+  height: 22px;
+  transform: translateX(-50%);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--paper-alt);
+  border: 1px solid var(--line);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink-muted);
+  transition: all 0.4s ease;
+}
+
+.journey-stone.reached {
+  background: var(--good);
+  border-color: var(--good);
+  color: var(--on-ink);
+}
+
+.journey-walker {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  transition: left 0.7s cubic-bezier(0.34, 1.4, 0.64, 1);
+  z-index: 1;
+}
+
+.journey-hop {
+  display: block;
+  animation: journey-hop 0.6s ease;
+}
+
+.journey-hop img,
+.journey-glyph {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--ink) 18%, transparent);
+}
+
+@keyframes journey-hop {
+  0% { transform: translateY(0); }
+  40% { transform: translateY(-14px) rotate(-4deg); }
+  70% { transform: translateY(2px); }
+  100% { transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .journey-walker { transition: none; }
+  .journey-hop { animation: none; }
+}
+
+/* -----------------------------
+   Mood + reaction (#4, #43)
+----------------------------- */
+
+/* Two axes on one avatar. The OUTER element carries the channel state and
+   loops; the INNER shell carries the mood and plays once, because React
+   remounts it on every mood change. Putting both on one element would
+   have them fighting over `transform` forever. */
+
+.mood-shell {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .grandma-character.state-listening {
+    animation: mood-breathe 3.4s ease-in-out infinite;
+  }
+
+  .grandma-character.state-thinking {
+    animation: mood-thinking 1.5s ease-in-out infinite;
+  }
+
+  .mood-confused .mood-shell {
+    animation: mood-shake 0.55s ease-in-out;
+  }
+
+  .mood-understanding .mood-shell {
+    animation: mood-nod 0.5s ease-out;
+  }
+
+  .mood-impressed .mood-shell {
+    animation: mood-bounce 0.75s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+
+  .mood-interested .mood-shell {
+    animation: mood-lean 0.5s ease-out;
+  }
+}
+
+/* Speaking already has its own keyframe and outranks the ambient states. */
+.grandma-character.speaking.state-speaking {
+  animation: grandma-speaking 0.8s ease-in-out infinite;
+}
+
+@keyframes mood-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+@keyframes mood-thinking {
+  0%, 100% { transform: rotate(-1.5deg); }
+  50% { transform: rotate(1.5deg); }
+}
+
+@keyframes mood-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-5px) rotate(-2deg); }
+  50% { transform: translateX(5px) rotate(2deg); }
+  80% { transform: translateX(-3px); }
+}
+
+@keyframes mood-nod {
+  0% { transform: translateY(0); }
+  40% { transform: translateY(5px) scale(1.03); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes mood-bounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.13) translateY(-6px); }
+  70% { transform: scale(0.98) translateY(2px); }
+  100% { transform: scale(1); }
+}
+
+@keyframes mood-lean {
+  0% { transform: rotate(0); }
+  55% { transform: rotate(-4deg) scale(1.03); }
+  100% { transform: rotate(0); }
+}
+
+/* The caption — without it, the reaction is subliminal and a judge can't
+   tell the avatar is responding to anything at all. */
+.rail-mood {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--ink-wash-2);
+  color: var(--ink-3);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.rail-mood.mood-confused {
+  background: color-mix(in srgb, var(--bad) 12%, transparent);
+  color: var(--bad);
+}
+
+.rail-mood.mood-understanding,
+.rail-mood.mood-impressed {
+  background: var(--good-tint);
+  color: var(--good);
+}
+
+.rail-mood.mood-interested {
+  background: color-mix(in srgb, var(--warn) 14%, transparent);
+  color: var(--warn);
+}
+
+/* Thinking time (pause) */
+
+.pause-button {
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-raised);
+  color: var(--ink-2);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.pause-button:hover {
+  border-color: var(--ink);
+}
+
+.pause-button.resting {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--on-ink);
+}
+
+/* Paused overrides every mood colour — she is not feeling anything about
+   the explanation right now, she is waiting. */
+.rail-mood.resting {
+  background: var(--ink-wash-2);
+  color: var(--ink-3);
+  font-style: italic;
+}
+
+/* No ambient motion while resting: a breathing avatar reads as impatience. */
+.grandma-character.state-resting {
+  animation: none;
+  opacity: 0.72;
+  transition: opacity 0.4s ease;
+}
+
+/* Starting over — quiet by design: an escape hatch, not a call to action. */
+
+.reset-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 56px;
+  padding-top: 20px;
+  border-top: 1px solid var(--ink-wash-2);
+}
+
+.reset-link {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: 13px;
+  color: var(--ink-muted);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.reset-link:hover {
+  color: var(--ink);
+}
+
+.reset-link.danger:hover {
+  color: var(--bad);
+}
+
+.reset-sep {
+  color: var(--line-strong);
+  font-size: 13px;
+}
+
+/* Mouth movement: two frames stacked, the open one faded in by volume. */
+
+.mouth-stack {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.mouth-stack img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.mouth-stack .mouth-open {
+  position: absolute;
+  inset: 0;
+  will-change: opacity;
+}
+
+/* One activity line, replacing the two stacked indicators that could both
+   claim the floor at once. */
+
+.rail-activity {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-muted);
+}
+
+.activity-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink-muted);
+}
+
+.rail-activity.state-speaking {
+  color: var(--ink);
+}
+
+.rail-activity.state-speaking .activity-dot {
+  background: var(--ink);
+  animation: speaking-dot 0.8s ease-in-out infinite alternate;
+}
+
+.rail-activity.state-listening .activity-dot {
+  animation: listening-dot 1.2s ease-in-out infinite alternate;
+}
+
+.rail-activity.state-thinking .activity-dot {
+  animation: listening-dot 0.7s ease-in-out infinite alternate;
+}
+
+.rail-activity.state-resting {
+  font-style: italic;
+  opacity: 0.75;
+}
+
+/* -----------------------------
+   Confidence, jury, blind spots
+----------------------------- */
+
+.confidence-ask {
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.confidence-question {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 10px;
+}
+
+.confidence-options {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.confidence-option {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 16px;
+  font-size: 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-raised);
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.confidence-option:hover {
+  border-color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.confidence-icon {
+  font-size: 17px;
+}
+
+.confidence-compare {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin: 4px 0 14px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--ink-wash-1);
+}
+
+.cc-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.cc-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.5;
+}
+
+.cc-value {
+  font-size: 22px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.cc-verdict {
+  flex: 1;
+  min-width: 200px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.recap-sub {
+  margin: 0 0 14px;
+  opacity: 0.7;
+}
+
+.blindspot-list {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* The jury bench: four portraits, scores on show, reasoning behind a tap.
+   Keeping every score visible is deliberate — the SPREAD between jurors is
+   the finding this card exists to deliver, and hiding it behind four clicks
+   would bury the one thing worth seeing. */
+.jury-bench {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.juror-seat {
+  flex: 1 1 0;
+  min-width: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 8px;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.juror-seat:hover {
+  background: var(--paper-sunken);
+}
+
+.juror-seat.open {
+  background: var(--paper-sunken);
+  border-color: var(--line);
+}
+
+.juror-seat:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.juror-portrait {
+  position: relative;
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* The ring carries the band colour, so a juror's verdict is legible from
+     the portrait alone before anything is clicked. */
+  box-shadow: 0 0 0 3px var(--paper-raised), 0 0 0 6px currentColor;
+  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.juror-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.juror-glyph {
+  font-size: 30px;
+  line-height: 1;
+}
+
+.juror-seat.open .juror-portrait {
+  transform: scale(1.08);
+}
+
+.juror-portrait.band-good { color: var(--good); }
+.juror-portrait.band-mid  { color: var(--warn); }
+.juror-portrait.band-low  { color: var(--bad); }
+
+.juror-seat-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.juror-seat-score {
+  font-size: 19px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.juror-seat-score.band-good { color: var(--good); }
+.juror-seat-score.band-mid  { color: var(--warn); }
+.juror-seat-score.band-low  { color: var(--bad); }
+
+.jury-hint {
+  margin: 0 0 16px;
+  padding: 16px;
+  border: 1px dashed var(--line);
+  border-radius: 16px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--ink-muted);
+}
+
+.juror-verdict {
+  margin-bottom: 16px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--paper-sunken);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .juror-verdict {
+    animation: juror-verdict-in 0.25s ease-out;
+  }
+}
+
+@keyframes juror-verdict-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.juror-verdict-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.juror-verdict-head strong {
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.juror-verdict-score {
+  flex: 0 0 auto;
+  font-size: 22px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.juror-verdict-score em {
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 700;
+  opacity: 0.45;
+}
+
+.juror-verdict p {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-3);
+}
+
+.juror-bar {
+  display: block;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--ink-wash-2);
+  overflow: hidden;
+}
+
+.juror-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.9s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+
+.juror-fill.band-good { background: var(--good); }
+.juror-fill.band-mid  { background: var(--warn); }
+.juror-fill.band-low  { background: var(--bad); }
+
+.jury-spread {
+  margin: 0;
+  padding-top: 14px;
+  border-top: 1px solid var(--line-soft);
+  font-size: 14px;
+}
+
+/* Language (#19) */
+
+.language-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.language-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  opacity: 0.45;
+  margin-right: 2px;
+}
+
+.language-chip {
+  padding: 7px 15px;
+  font-size: 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-raised);
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.language-chip:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+
+.language-chip.selected {
+  border-color: var(--ink);
+  border-width: 2px;
+  padding: 6px 14px;
+  font-weight: 700;
+}
+
+.language-chip:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* Depth ladder */
+
+.depth-ladder {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2px;
+}
+
+.depth-rung {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: 10px;
+}
+
+.depth-mark {
+  font-size: 13px;
+  width: 14px;
+  text-align: center;
+}
+
+.depth-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.depth-text em {
+  font-size: 13px;
+  font-style: normal;
+  opacity: 0.55;
+}
+
+.depth-rung.below {
+  opacity: 0.75;
+}
+
+.depth-rung.below .depth-mark {
+  color: var(--good);
+}
+
+.depth-rung.here {
+  background: var(--good-tint);
+  border: 1px solid var(--good-edge);
+}
+
+.depth-rung.here .depth-mark {
+  color: var(--good);
+}
+
+.depth-rung.above {
+  opacity: 0.38;
+}
+
+.depth-you {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--good);
+}
+
+.depth-evidence {
+  margin: 0 0 10px;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.depth-next {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+/* Difficulty prediction */
+
+.predict-flag {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bad) 12%, transparent);
+  color: var(--bad);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: help;
+}
+
+.predict-intro {
+  margin: 0 0 14px;
+  font-size: 14px;
+  opacity: 0.6;
+}
+
+.predict-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.predict-list li {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+}
+
+.predict-verdict {
+  flex-shrink: 0;
+  min-width: 108px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.as-expected .predict-verdict {
+  opacity: 0.4;
+}
+
+.surprise .predict-verdict {
+  color: var(--good);
+}
+
+.predict-point {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+}
+
+.predict-point em {
+  font-size: 13px;
+  font-style: normal;
+  opacity: 0.55;
+}
+
+/* -----------------------------
+   Explanation forensics (#19)
+----------------------------- */
+
+.forensics-intro,
+.delivery-intro {
+  margin: 0 0 22px;
+  font-size: 15px;
+  color: var(--ink-3);
+}
+
+/* The track is the lesson from first word to last. Marks sit at the
+   proportion of the transcript where the quote actually appears, so the
+   spacing carries information rather than decoration. */
+.forensics-track {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--paper-alt);
+  margin-bottom: 8px;
+}
+
+.forensics-mark {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 50%;
+  border: 3px solid var(--paper-raised);
+  cursor: default;
+}
+
+.forensics-mark.landed {
+  background: var(--good);
+}
+
+.forensics-mark.lost {
+  background: var(--bad);
+}
+
+.forensics-mark.recovered {
+  background: var(--warn);
+}
+
+.forensics-mark.jargon {
+  background: var(--bad);
+}
+
+.forensics-axis {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  opacity: 0.7;
+  margin-bottom: 26px;
+}
+
+.forensics-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.forensics-list li {
+  padding-left: 16px;
+  border-left: 3px solid var(--line);
+}
+
+.forensics-list li.landed {
+  border-left-color: var(--good);
+}
+
+.forensics-list li.lost {
+  border-left-color: var(--bad);
+}
+
+.forensics-list li.recovered {
+  border-left-color: var(--warn);
+}
+
+.forensics-list li.jargon {
+  border-left-color: var(--bad);
+}
+
+.forensics-kind {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  margin-bottom: 8px;
+}
+
+.forensics-list blockquote {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.forensics-list p {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-3);
+}
+
+/* -----------------------------
+   Delivery analysis (#22)
+----------------------------- */
+
+.delivery-readings {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.delivery-readings li {
+  padding: 18px;
+  border: 1px solid var(--line-soft);
+  border-radius: 16px;
+  background: var(--paper-sunken);
+}
+
+/* "watch" is not a failure — it only marks the reading worth a second look,
+   so it borrows the amber rather than the red. */
+.delivery-readings li.watch {
+  border-color: var(--warn);
+  background: var(--paper-sunken);
+}
+
+.delivery-figure {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.delivery-value {
+  font-size: 30px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.delivery-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.delivery-unit {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.delivery-readings .delivery-note {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+
+/* -----------------------------
+   Lesson replay card (#20)
+----------------------------- */
+
+.replay-sheet {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 24px;
+  background: var(--paper-sunken);
+}
+
+.replay-topline {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.replay-topic {
+  font-size: 24px;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+}
+
+.replay-taught {
+  font-size: 14px;
+  color: var(--ink-muted);
+}
+
+.replay-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.replay-stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.replay-stats strong {
+  font-size: 26px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.replay-stats span {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.replay-quote {
+  margin: 20px 0 0;
+  font-size: 16px;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.replay-code {
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.replay-code strong {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+}
+
+.replay-copy {
+  margin-top: 18px;
+  padding: 11px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-raised);
+  color: var(--ink);
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.replay-copy:hover {
+  border-color: var(--ink);
+}
+
+@media (max-width: 600px) {
+  .delivery-readings,
+  .replay-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* The ladder caption under the three counts — explains why they descend. */
+.gap-ladder {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+/* =========================================================================
+   Phones — the session view specifically
+   =========================================================================
+
+   The three-column layout stacks correctly on a narrow screen but nothing
+   manages height, so a live lesson became four or five screens of scroll
+   with the finish button stranded underneath the checklist, the challenge
+   deck and the misconceptions panel. Ending a lesson mid-demo meant
+   scrolling past everything you were not using to reach the one control
+   you were.
+
+   Three things fix that: the call controls stay on screen, the panel that
+   ends the lesson comes before the panels that merely inform, and the
+   pre-lesson reading material stops occupying a whole screen during the
+   part where somebody is talking.
+
+   Deliberately the last block in this file so it wins on order alone, and
+   so it can be deleted in one piece.
+   ========================================================================= */
+
+@media (max-width: 900px) {
+  /* Reading matter, not live instrumentation. It has been read by the time
+     the mic is on, and it costs most of a screen. */
+  .session-header p {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 0;
+  }
+
+  .session-layout {
+    gap: 16px;
+  }
+
+  /* Portrait, name and status on one line — the face still reacts, it just
+     stops claiming a third of the viewport to do it. */
+  .character-rail {
+    align-items: center;
+    gap: 12px;
+    padding: 4px 0;
+  }
+
+  .character-rail .grandma-character {
+    width: 64px;
+    height: 64px;
+    flex: none;
+  }
+
+  .rail-name {
+    margin: 0;
+  }
+
+  .conversation {
+    padding: 16px;
+    min-height: 0;
+    gap: 12px;
+  }
+
+  /* Bounded, so the transcript scrolls inside its own box and the page
+     stays roughly one screen. An earlier version of this block set
+     max-height:none, which let the transcript grow with every message: the
+     document became the scrolling element, the page lurched upward on each
+     new line, and the controls ended up floating somewhere below a layout
+     five screens tall. dvh rather than vh because mobile browsers change
+     the viewport height as their address bar hides. */
+  .transcript {
+    max-height: 52dvh;
+    min-height: 30dvh;
+    flex: none;
+  }
+
+  .mic-area {
+    padding-top: 12px;
+  }
+
+  /* Order by what the panel is FOR: glance at coverage, leave the lesson,
+     then read the detail. Source order puts the exit last, which is right
+     on a desktop sidebar and wrong on a phone. */
+  .progress {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+  }
+
+  .progress-title { order: 1; }
+  .progress-count { order: 2; }
+  .journey        { order: 3; }
+  .completion-area { order: 4; margin-top: 16px; padding-top: 16px; }
+  .progress-item  { order: 5; }
+  .banned-terms-panel { order: 6; }
+  .challenge-deck { order: 7; }
+  .misconceptions-panel { order: 8; }
+}
+
+@media (max-width: 600px) {
+  .session-header h1 {
+    font-size: 28px;
+    line-height: 1.1;
+  }
+
+  /* The 600px block above this one set 120px, which made the portrait
+     LARGER on a smaller screen than the 900px rule it overrode. */
+  .grandma-character,
+  .character-rail .grandma-character {
+    width: 56px;
+    height: 56px;
+  }
+
+  /* Prerequisites are something you read once before starting. During a
+     lesson they are three lines of text that push the transcript down. */
+  .prereq-chips {
+    display: none;
+  }
+
+  .topic-analysis {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+    margin-top: 6px;
+  }
+
+  /* Smaller type rather than a taller box. The transcript is capped at 52dvh
+     so it scrolls inside its own panel, which means the only way to see more
+     of the conversation on a phone is to fit more words into the same space.
+     Line-height stays at 1.5 — pulling in size and leading together is what
+     makes a transcript tiring to read. */
+  .transcript-message {
+    max-width: 100%;
+    font-size: 14px;
+    padding: 12px 14px;
+  }
+
+  .transcript-message .speaker {
+    font-size: 10px;
+  }
+
+  /* Her lines are deliberately larger than the student's — she is the one
+     being taught, and her confusion is the thing to read. That ratio is kept,
+     just scaled: 20px against a 390px screen wraps a single sentence over
+     four lines and pushes the student's own words out of the box. */
+  .grandma-message p {
+    font-size: 16px;
+  }
+
+  /* The walking portrait is 38px on a track that has to fit four numbered
+     stones across roughly 320px. Shrinking both keeps the row readable
+     instead of a pile of overlapping circles. */
+  .journey {
+    height: 48px;
+    margin: 4px 0 12px;
+  }
+
+  .journey-line {
+    top: 32px;
+  }
+
+  .journey-stone {
+    top: 24px;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+
+  .journey-hop img,
+  .journey-glyph {
+    width: 28px;
+    height: 28px;
+    font-size: 15px;
+  }
+
+  /* Portrait, name and status read as one line rather than three things
+     that happen to be near each other. */
+  .character-rail {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .rail-name,
+  .rail-activity,
+  .rail-mood {
+    margin: 0;
+    align-self: center;
+  }
+
+  /* Thumb-sized, and on one row rather than three stacked full-width
+     buttons. */
+  .mic-controls {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .recall-button {
+    width: 100%;
+  }
+}
+
+/* =========================================================================
+   The understanding graph
+   =========================================================================
+
+   A dark instrument panel inset into the page: the one surface that is
+   measuring rather than reporting. The contrast is deliberate — the graph
+   is the machine's own view of the lesson, and it should not look like the
+   notes around it.
+
+   Colours come from tokens.css, including the ones the canvas reads back
+   out through getComputedStyle. Nothing here is a literal.
+   ========================================================================= */
+
+.graph-wrap {
+  position: relative;
+  height: 320px;
+  margin-bottom: 18px;
+  border: 2px solid var(--border-strong);
+  border-radius: var(--r-panel);
+  background: var(--bg-void);
+  overflow: hidden;
+  contain: layout paint;
+}
+
+.graph-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Before a word is spoken there is nothing to draw, so the panel says so
+   rather than sitting empty and looking broken. */
+.graph-waiting {
+  position: absolute;
+  left: var(--s4);
+  bottom: var(--s3);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.graph-waiting::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: var(--s2);
+  border-radius: var(--r-pill);
+  background: var(--signal);
+  vertical-align: middle;
+  animation: graph-waiting-pulse 1.6s var(--e-out-quad) infinite;
+}
+
+@keyframes graph-waiting-pulse {
+  0%, 100% { opacity: 0.25; }
+  50%      { opacity: 1; }
+}
+
+/* The designed alternative, not the absence of one: the dot stops breathing
+   and simply stays lit, so the panel still reads as live. */
+[data-motion="reduced"] .graph-waiting::after {
+  animation: none;
+  opacity: 1;
+}
+
+/* Available to a screen reader, invisible to everyone else. The canvas is
+   decorative and marked aria-hidden, so this carries its meaning. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 900px) {
+  .graph-wrap {
+    height: 240px;
+  }
+}
+
+/* Says out loud that a juror's score and the Feynman Score measure
+   different things — without it, one character showing two numbers on one
+   screen reads as a bug rather than as two kinds of evidence. */
+.jury-scale-note {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-muted, var(--ink-muted));
+}
+
+/* =========================================================================
+   Session layout: the graph owns the centre
+   =========================================================================
+   The transcript moved into the right rail beside the graph rather than
+   underneath it. Stacked, the two shared one column and squeezed each
+   other — you could see one of the character's messages, cut off, above a
+   graph that had no room to breathe. Side by side, each gets a column.
+   ========================================================================= */
+
+.graph-wrap {
+  height: auto;
+  flex: 1;
+  min-height: 260px;
+  margin-bottom: 0;
+}
+
+/* The centre column is the instrument: graph on top, controls beneath. */
+.conversation > div:first-child {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* The right rail scrolls as one, with the transcript given a real share of
+   it rather than whatever the graph left over. */
+.progress .transcript {
+  max-height: 42vh;
+  min-height: 200px;
+  margin-bottom: 20px;
+  padding-right: 6px;
+}
+
+@media (max-width: 900px) {
+  /* Stacked again on a narrow screen, where side-by-side is not on offer.
+     The graph shrinks first: it is the part that still reads at a glance. */
+  .graph-wrap {
+    height: 220px;
+    flex: none;
+    min-height: 0;
+  }
+
+  .progress .transcript {
+    max-height: 46dvh;
+    min-height: 0;
+  }
+}
+
+/* Photo-to-dials row in the character builder. Sits above the presets:
+   both are starting points, this is the one that picks itself. */
+.you-photo-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.you-photo-input {
+  display: none;
+}
+
+.you-photo-button {
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-raised);
+  color: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s ease;
+}
+
+.you-photo-button:hover:not(:disabled) {
+  border-color: var(--ink);
+}
+
+.you-photo-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.you-photo-note {
+  flex: 1 1 200px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-muted);
+}
+
+.you-photo-note.failed {
+  color: var(--bad);
+}
+
+/* The bottom of the instrument. Sits directly under the graph with no gap,
+   so the two read as one panel — which is also what lets a particle leave
+   the waveform and arrive in the graph without crossing a seam. */
+.waveform {
+  height: 56px;
+  border: 2px solid var(--border-strong);
+  border-top: none;
+  border-radius: 0 0 var(--r-panel) var(--r-panel);
+  background: var(--bg-void);
+  padding: 0 var(--s3);
+  overflow: hidden;
+}
+
+.waveform-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The graph loses its bottom corners where the waveform meets it. */
+.graph-wrap {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+@media (max-width: 900px) {
+  .waveform {
+    height: 40px;
+  }
+}
+
+/* Graph and waveform as one unit, filling the centre column. */
+.instrument {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.you-photo-button.subtle {
+  font-weight: 500;
+  color: var(--ink-3);
+}
+
+/* Mirrored, because an un-mirrored preview of your own face reads as wrong
+   to everyone who has ever used a camera app. The captured frame is drawn
+   from the video element directly, so the saved photo is not flipped. */
+.you-camera {
+  margin-bottom: 18px;
+}
+
+.you-camera-view {
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: var(--ink);
+  transform: scaleX(-1);
+  display: block;
+}
+
+.you-camera-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+/* =========================================================================
+   Words you're using
+   =========================================================================
+   The live form of the argument: you said a word, and the person you were
+   teaching had to stop you and ask what it meant. Ordered by what is
+   costing you right now, so the top of the list is always the thing to
+   say another way.
+   ========================================================================= */
+
+.jargon {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--paper-alt);
+}
+
+.jargon-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.jargon-count {
+  font-size: 13px;
+  color: var(--ink-muted);
+  letter-spacing: 0.04em;
+}
+
+.jargon-count em {
+  margin: 0 5px;
+  font-style: normal;
+  opacity: 0.5;
+}
+
+.jargon-count strong.hot {
+  color: var(--bad);
+}
+
+.jargon-empty,
+.jargon-note {
+  margin: 10px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-muted);
+}
+
+.jargon-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.jargon-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 8px;
+  background: var(--paper-raised);
+  transition:
+    border-color 0.2s var(--e-out-quad, ease),
+    background 0.2s var(--e-out-quad, ease);
+}
+
+.jargon-term {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.jargon-state {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+/* She stopped you on this one. It is the only thing on the panel that
+   should pull your eye mid-sentence. */
+.jargon-row.queried {
+  border-color: var(--bad);
+  background: color-mix(in srgb, var(--bad) 6%, transparent);
+}
+
+.jargon-row.queried .jargon-term,
+.jargon-row.queried .jargon-state {
+  color: var(--bad);
+}
+
+.jargon-row.cleared {
+  border-color: var(--good-edge);
+  background: var(--good-tint);
+}
+
+.jargon-row.cleared .jargon-term,
+.jargon-row.cleared .jargon-state {
+  color: var(--good);
+}
+
+.jargon-row.cleared .jargon-term {
+  font-weight: 500;
+}
+
+/* Both sides of the conversation at one size, and a little tighter now
+   that the centre column carries the whole exchange. */
+.transcript-message {
+  padding: 13px 16px;
+}
+
+.transcript-message p {
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+@media (max-width: 900px) {
+  .transcript-message p,
+  .grandma-message p {
+    font-size: 15px;
+  }
+}

@@ -45,8 +45,9 @@ explanation and pattern-matches it against a rubric.
 
 Pick any topic. An AI grandmother — voice, personality, and all — listens live and asks
 the questions a real beginner would ask: *"but what does that word mean, darling?"*, *"how
-did you get from that to this?"*. She occasionally states something confidently wrong,
-just to see if you catch it. When you're done, a separate grading pass reads the whole
+did you get from that to this?"*. Switch on Misconception Ambush mode and she'll
+occasionally state something confidently wrong, just to see if you catch it. When you're
+done, a separate grading pass reads the whole
 conversation and judges whether each point was **genuinely explained**, not just
 name-dropped — the difference between a checklist lighting up green and someone actually
 learning something.
@@ -90,7 +91,7 @@ the learner, never the teacher. They will never define a term for you.
 |:---:|:---:|:---:|:---:|:---:|:---:|
 | <img src="frontend/public/peep-grandma.png" width="90"/> | <img src="frontend/public/peep-child.png" width="90"/> | <img src="frontend/public/peep-student.png" width="90"/> | <img src="frontend/public/peep-manager.png" width="90"/> | <img src="frontend/public/peep-expert.png" width="90"/> | <img src="frontend/public/peep-professor.png" width="90"/> |
 | **Grandma** | **Mia**, 7 | **Sam** | **Marcus** | **Victor** | **Prof. Ellis** |
-| Knows nothing.<br/>Loves you anyway. | Asks *why*.<br/>Then asks again. | Knows the words,<br/>not the how. | Wants the<br/>bottom line. | Knows the field<br/>next door. | Remembers<br/>everything you said. |
+| Knows nothing.<br/>Loves you anyway. | Asks *why*.<br/>Then asks why again. | Knows the words,<br/>not the how. | Wants the<br/>bottom line. | Knows the field<br/>next door. | Remembers<br/>everything you said. |
 | Beginner | Beginner | Intermediate | Intermediate | Advanced | Advanced |
 
 </div>
@@ -190,15 +191,16 @@ sequenceDiagram
 - Real-time keyword checklist while you talk
 - AI grading of genuine understanding, not keyword-matching
 - Self-correction bonus for catching your own mistakes
+- Your own identity — compose a name and a face once, reused every lesson
 
 **Six learners, one agent**
 - Distinct voice, vocabulary, and grading strictness each
-- Bring your own custom learner — name, interests, a photo
+- Her mood and face react live as you talk — confused, curious, impressed
 - Difficulty prediction: guesses which points will trip you up
   *before* you start, then scores itself against what happened
 
 **Pressure-testing**
-- Misconception Ambush — a confidently wrong claim to catch
+- Misconception Ambush *(opt-in)* — a confidently wrong claim to catch
 - Topic-specific challenge cards, fired mid-conversation
 - Confidence gap — predict your score, then see the truth
 - Blind spots — ground you never went near, not just badly
@@ -289,7 +291,6 @@ CORS and health-check gotchas, is in [`DEPLOY.md`](DEPLOY.md).
 │   ├── index.js                every /api route
 │   ├── store.js                Redis-backed Teach-Off & quiz state
 │   └── tts.js
-├── data/topics.json          suggested-topic chips
 ├── DEPLOY.md                 deployment walkthrough
 ├── TESTING.md                 test plan & smoke test notes
 └── smoke-test.sh
@@ -300,7 +301,7 @@ CORS and health-check gotchas, is in [`DEPLOY.md`](DEPLOY.md).
 ## The team and the hackathon
 
 Built overnight at **Student Hackathon 2026 — Titanom × DeutschlandGPT**, Titanom
-Headquarters, Germering, Germany. Theme: *"Eine Nacht, acht Teams, ein Thema: Bildung ×
+Headquarter, Germering, Germany. Theme: *"Eine Nacht, acht Teams, ein Thema: Bildung ×
 KI"* — one night, eight teams, one theme: education × AI.
 
 <div align="center">

@@ -1,29 +1,245 @@
-# Teach It To Grandma
+<div align="center">
 
-🏆 **Winner of the ElevenLabs Sonderpreis for Best Project Built With ElevenLabs**, awarded 3 months of ElevenLabs Scale.
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:6C47FF,100:FF6B9D&height=220&section=header&text=Teach%20It%20To%20Grandma&fontSize=46&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=Explain%20it%20out%20loud.%20If%20Grandma%20gets%20it%2C%20you%20understood%20it.&descAlignY=58&descSize=17&descColor=F5F0FF" width="100%" alt="Teach It To Grandma" />
 
-**[Try it live](https://titanom-hackathon-8xts.vercel.app/)**
+[![Live demo](https://img.shields.io/badge/▶_LIVE_DEMO-titanom--hackathon--8xts.vercel.app-6C47FF?style=for-the-badge&logo=vercel&logoColor=white)](https://titanom-hackathon-8xts.vercel.app/)
 
-A voice app that tests whether you actually understand something, using the Feynman technique: explain a concept out loud to an AI "Grandma" persona who catches jargon, logic gaps, and vagueness instead of teaching it back to you.
+[![ElevenLabs Sonderpreis](https://img.shields.io/badge/🏆_ElevenLabs_Sonderpreis-Best_Project_Built_With_ElevenLabs-FF6B9D?style=for-the-badge)](https://hack.titanom.com/)
 
-Say a topic, any topic. Grandma listens by voice, asks follow-up questions, and occasionally states something confidently wrong to see if you catch it. At the end, a grading layer judges whether each point was genuinely explained, not just keyword-matched, and produces a score you can compare against other people teaching the same topic ("Teach-Off" mode).
+*3 Monate ElevenLabs Scale · für das beste Projekt, das ElevenLabs nutzt*
 
-## How it works
+![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=flat-square&logo=vite&logoColor=white)
+![Express](https://img.shields.io/badge/Express-5-000000?style=flat-square&logo=express&logoColor=white)
+![ElevenLabs](https://img.shields.io/badge/ElevenLabs-Conversational_AI-1a1a2e?style=flat-square)
+![Upstash](https://img.shields.io/badge/Upstash-Redis-00E9A3?style=flat-square&logo=redis&logoColor=white)
+![Vercel](https://img.shields.io/badge/Deployed_on-Vercel-000000?style=flat-square&logo=vercel&logoColor=white)
 
-1. **Conversation** — the frontend opens a live voice session with an ElevenLabs Conversational AI agent (Gemini-backed persona, "Grandma"). She responds in character, asks questions, and occasionally plants a deliberately wrong claim to test whether the student corrects her.
-2. **Live progress** — a lightweight in-browser keyword/context check tracks a per-topic checklist in real time so the session has instant feedback, independent of the network round-trip to the grading server.
-3. **Finish lesson** — the full transcript is sent to a small Express server, which asks Claude 4.5 Sonnet (via an OpenAI-compatible client) whether each checklist point was *actually explained*, not just name-dropped. This never blocks the recap: if the grading call fails or is slow, the recap still renders using the live keyword grading as a fallback.
-4. **Recap** — shows the AI's per-point verdict and reasoning, self-correction bonuses, whether the student caught Grandma's planted mistake, and a Teach-Off leaderboard comparing scores on the same topic.
+</div>
 
-## Stack
+<br/>
 
-- **Frontend**: React + Vite, `@elevenlabs/react` for the voice session
-- **Grading server**: Express, `openai` SDK pointed at an OpenAI-compatible Claude endpoint, model `claude-4.5-sonnet`
-- **Persistence**: Upstash Redis (Teach-Off codes/leaderboard persist across restarts)
+## Table of contents
 
-Two other models were evaluated for grading and rejected: a faster Claude model let a vague answer pass 3 of 4 checks, and a smaller GPT model passed it 4 of 4. A grader that rubber-stamps jargon defeats the point of the app, so the slower, stricter model was kept.
+- [What is this](#what-is-this)
+- [See it in 30 seconds](#see-it-in-30-seconds)
+- [Meet the six learners](#meet-the-six-learners)
+- [Under the hood](#under-the-hood)
+- [One lesson, start to finish](#one-lesson-start-to-finish)
+- [Everything it can do](#everything-it-can-do)
+- [Tech stack](#tech-stack)
+- [Running it locally](#running-it-locally)
+- [Deploying](#deploying)
+- [Project structure](#project-structure)
+- [The team and the hackathon](#the-team-and-the-hackathon)
 
-## Running locally
+<br/>
+
+## What is this
+
+Everyone knows the Feynman technique: if you can't explain something simply, you don't
+really understand it. Every app that claims to teach it just asks you to *type* an
+explanation and pattern-matches it against a rubric.
+
+**Teach It To Grandma makes you say it out loud, to someone who can push back.**
+
+Pick any topic. An AI grandmother — voice, personality, and all — listens live and asks
+the questions a real beginner would ask: *"but what does that word mean, darling?"*, *"how
+did you get from that to this?"*. She occasionally states something confidently wrong,
+just to see if you catch it. When you're done, a separate grading pass reads the whole
+conversation and judges whether each point was **genuinely explained**, not just
+name-dropped — the difference between a checklist lighting up green and someone actually
+learning something.
+
+> The moment this app is built around: the keyword bar reads 4 / 4, and the AI says she
+> didn't follow a word of it. That gap is the entire product.
+
+<br/>
+
+## See it in 30 seconds
+
+```mermaid
+flowchart LR
+    A["📝 Say any topic"] --> B["🧠 AI writes the lesson<br/>(points · keywords · misconceptions)"]
+    B --> C["🎙️ Explain it out loud<br/>to your chosen learner"]
+    C --> D{"Do they<br/>push back?"}
+    D -- "jargon, gaps, a planted lie" --> C
+    D -- "they're convinced" --> E["📊 AI grades what was<br/>ACTUALLY explained"]
+    E --> F["🏆 Score · XP · notes<br/>· Teach-Off leaderboard"]
+
+    style A fill:#6C47FF,color:#fff,stroke:none
+    style B fill:#8B5CF6,color:#fff,stroke:none
+    style C fill:#A855F7,color:#fff,stroke:none
+    style D fill:#1a1a2e,color:#fff,stroke:none
+    style E fill:#EC4899,color:#fff,stroke:none
+    style F fill:#FF6B9D,color:#fff,stroke:none
+```
+
+<br/>
+
+## Meet the six learners
+
+One ElevenLabs agent, six personas — each with its own voice, vocabulary, question
+style, and **grading strictness**. The Manager wants the bottom line; the Professor
+quotes your own contradictions back at you. All six share one unbreakable rule: they are
+the learner, never the teacher. They will never define a term for you.
+
+<div align="center">
+
+| | | | | | |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| <img src="frontend/public/peep-grandma.png" width="90"/> | <img src="frontend/public/peep-child.png" width="90"/> | <img src="frontend/public/peep-student.png" width="90"/> | <img src="frontend/public/peep-manager.png" width="90"/> | <img src="frontend/public/peep-expert.png" width="90"/> | <img src="frontend/public/peep-professor.png" width="90"/> |
+| **Grandma** | **Mia**, 7 | **Sam** | **Marcus** | **Victor** | **Prof. Ellis** |
+| Knows nothing.<br/>Loves you anyway. | Asks *why*.<br/>Then asks again. | Knows the words,<br/>not the how. | Wants the<br/>bottom line. | Knows the field<br/>next door. | Remembers<br/>everything you said. |
+| Beginner | Beginner | Intermediate | Intermediate | Advanced | Advanced |
+
+</div>
+
+<br/>
+
+## Under the hood
+
+```mermaid
+flowchart TB
+    subgraph client["🖥️ Browser — React + Vite"]
+        UI["Landing → Session → Recap<br/>+ Quiz mode"]
+    end
+
+    subgraph voice["🎙️ ElevenLabs"]
+        Agent["Conversational AI Agent<br/>persona · voice · greeting overridden per learner"]
+    end
+
+    subgraph server["⚙️ Grading server — Express"]
+        Lesson["/api/lesson"]
+        Grade["/api/grade"]
+        Extra["/api/jury · /api/mirror<br/>/api/explainback · /api/challenge · /api/face"]
+        Multi["/api/teachoff · /api/quiz"]
+    end
+
+    subgraph brains["🧠 TitanomGPT — OpenAI-compatible"]
+        Fast["gemini-3.1-flash-lite<br/>fast grading, ~1.7s"]
+        Deep["claude-4.5-sonnet<br/>jury & closed-world recall"]
+    end
+
+    Redis[("🗄️ Upstash Redis<br/>Teach-Off boards · quiz state")]
+
+    UI <-->|"live voice · WebRTC"| Agent
+    UI --> Lesson --> Fast
+    UI --> Grade --> Fast
+    UI -.-> Extra --> Deep
+    UI --> Multi <--> Redis
+
+    style client fill:#6C47FF22,stroke:#6C47FF
+    style voice fill:#EC489922,stroke:#EC4899
+    style server fill:#8B5CF622,stroke:#8B5CF6
+    style brains fill:#1a1a2e22,stroke:#1a1a2e
+```
+
+Two things that shape every design decision here:
+
+- **Grading never blocks the demo.** If the AI grader is slow or fails, the recap still
+  renders from the live in-browser keyword check — a worse verdict, never a stuck screen.
+- **The score is computed, never model-emitted.** The AI answers yes/no per point with
+  reasoning; the headline number is arithmetic over those booleans, so it's reproducible
+  and every input is something an engineer can point at.
+
+<br/>
+
+## One lesson, start to finish
+
+```mermaid
+sequenceDiagram
+    actor You
+    participant App as React App
+    participant Learner as ElevenLabs Agent
+    participant Server as Grading Server
+    participant AI as TitanomGPT
+
+    You->>App: Pick a topic + a learner
+    App->>Server: POST /api/lesson
+    Server->>AI: generate points, keywords, misconceptions
+    AI-->>Server: lesson JSON
+    Server-->>App: lesson + checklist
+    App->>Learner: start voice session (persona & voice override)
+
+    loop the lesson
+        You->>Learner: explain it out loud
+        Learner-->>You: asks, doubts, occasionally lies on purpose
+    end
+
+    App->>Server: POST /api/grade (full transcript)
+    Server->>AI: did they explain it, or just name it?
+    AI-->>Server: verdict + reasoning, per point
+    Server-->>App: score, XP, Grandma's Notes
+    App-->>You: Recap — the score, and exactly why
+```
+
+<br/>
+
+## Everything it can do
+
+<table>
+<tr><td width="50%" valign="top">
+
+**The core loop**
+- Any topic, typed free-text — AI writes the lesson
+- Live voice conversation, not a chat window
+- Real-time keyword checklist while you talk
+- AI grading of genuine understanding, not keyword-matching
+- Self-correction bonus for catching your own mistakes
+
+**Six learners, one agent**
+- Distinct voice, vocabulary, and grading strictness each
+- Bring your own custom learner — name, interests, a photo
+- Difficulty prediction: guesses which points will trip you up
+  *before* you start, then scores itself against what happened
+
+**Pressure-testing**
+- Misconception Ambush — a confidently wrong claim to catch
+- Topic-specific challenge cards, fired mid-conversation
+- Confidence gap — predict your score, then see the truth
+- Blind spots — ground you never went near, not just badly
+
+</td><td width="50%" valign="top">
+
+**The verdict**
+- Grandma's Notes — your strongest quote, one concrete thing to fix
+- She explains it *back* — only what survived, gaps and all
+- Mirror mode — she retells it with planted errors, you catch them
+- Delivery analysis — pace, filler, hedging, from the transcript
+- One shareable recap card, composed from numbers already on screen
+
+**Progression**
+- A Feynman Score computed from real signals, never guessed
+- Itemised XP with the actual quote that earned it
+- Achievements that stay locked — with their condition visible —
+  until they're honestly earned
+
+**Compare & compete**
+- Teach-Off — two people, the *same* generated lesson, one board
+- A four-persona AI jury judging one explanation by different standards
+- A live 2-player quiz mode, on the clock
+- Full German-language mode — lesson, grading, and voice together
+
+</td></tr>
+</table>
+
+<br/>
+
+## Tech stack
+
+| Layer | Choice | Why |
+|---|---|---|
+| Frontend | React 19 + Vite | `@elevenlabs/react` for the voice session, no framework overhead |
+| Voice | ElevenLabs Conversational AI | One agent, six personas via per-session prompt/voice overrides |
+| Grading server | Express 5 | Two models: a fast one for the live loop, a stronger one for judgement calls |
+| Model access | TitanomGPT (OpenAI-compatible) | `gemini-3.1-flash-lite` for speed, `claude-4.5-sonnet` where a wrong answer needs to be subtle to be dangerous |
+| Persistence | Upstash Redis | Teach-Off boards and quiz state survive serverless cold starts |
+| Hosting | Vercel (×2 projects) | Zero-config detection for Vite and Express from one repo |
+
+<br/>
+
+## Running it locally
 
 ```bash
 # terminal 1 — grading server
@@ -34,13 +250,66 @@ npm run dev        # http://localhost:3001
 # terminal 2 — frontend
 cd frontend
 npm install
-npm run dev        # http://localhost:5173
+npm run dev         # http://localhost:5173
 ```
 
-The grading server reads `ANTHROPIC_API_KEY` from a project-root `.env` (gitignored, never put it in the frontend). To point the frontend at a deployed server instead of localhost, set `VITE_GRADING_API` in `frontend/.env.local`.
+The grading server reads `TITANOM_API_KEY` from a project-root `.env` (gitignored —
+never put it in the frontend). Point the frontend at a deployed server instead of
+localhost by setting `VITE_GRADING_API` in `frontend/.env.local`.
 
-Run `./smoke-test.sh` before a live demo to sanity-check both processes are up and the grading endpoint responds.
+Run `./smoke-test.sh` before a live demo to sanity-check both processes are up and the
+grading endpoint responds.
 
-## Status
+<br/>
 
-Built for a hackathon; won the ElevenLabs Sonderpreis for Best Project Built With ElevenLabs.
+## Deploying
+
+Two Vercel projects from this one repo — `server` and `frontend` as separate root
+directories, connected to Upstash Redis for shared state. Full walkthrough, including the
+CORS and health-check gotchas, is in [`DEPLOY.md`](DEPLOY.md).
+
+<br/>
+
+## Project structure
+
+```
+.
+├── frontend/                 React + Vite client
+│   ├── src/
+│   │   ├── views/             Landing · Intro · Session · Recap · Quiz
+│   │   ├── components/        KeyPrompt · ThemeToggle · Thinking · JargonDebt
+│   │   ├── characters.js      the six personas, as data
+│   │   ├── features.js        every optional feature, one flag each
+│   │   └── ...
+│   └── public/                 the peep character art
+├── server/                   Express grading API
+│   ├── index.js                every /api route
+│   ├── store.js                Redis-backed Teach-Off & quiz state
+│   └── tts.js
+├── data/topics.json          suggested-topic chips
+├── DEPLOY.md                 deployment walkthrough
+├── TESTING.md                 test plan & smoke test notes
+└── smoke-test.sh
+```
+
+<br/>
+
+## The team and the hackathon
+
+Built overnight at **Student Hackathon 2026 — Titanom × DeutschlandGPT**, Titanom
+Headquarters, Germering, Germany. Theme: *"Eine Nacht, acht Teams, ein Thema: Bildung ×
+KI"* — one night, eight teams, one theme: education × AI.
+
+<div align="center">
+
+### 🏆 ElevenLabs Sonderpreis
+**Best Project Built With ElevenLabs**
+3 Monate ElevenLabs Scale
+
+</div>
+
+<br/>
+
+<div align="center">
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:6C47FF,100:FF6B9D&height=120&section=footer" width="100%" />
+</div>

@@ -112,7 +112,8 @@ flowchart TB
     subgraph server["⚙️ Grading server — Express"]
         Lesson["/api/lesson"]
         Grade["/api/grade"]
-        Extra["/api/jury · /api/mirror<br/>/api/explainback · /api/challenge · /api/face"]
+        FastExtra["/api/challenge · /api/mirror<br/>/api/face"]
+        DeepExtra["/api/explainback · /api/jury"]
         Multi["/api/teachoff · /api/quiz"]
     end
 
@@ -126,8 +127,10 @@ flowchart TB
     UI <-->|"live voice · WebRTC"| Agent
     UI --> Lesson --> Fast
     UI --> Grade --> Fast
-    UI -.-> Extra --> Deep
-    UI --> Multi <--> Redis
+    UI -.-> FastExtra --> Fast
+    UI -.-> DeepExtra --> Deep
+    UI --> Multi --> Fast
+    Multi <--> Redis
 
     style client fill:#6C47FF22,stroke:#6C47FF
     style voice fill:#EC489922,stroke:#EC4899
